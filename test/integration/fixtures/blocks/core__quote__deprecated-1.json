@@ -1,10 +1,10 @@
 [
 	{
 		"name": "core/quote",
-		"isValid": true,
+		"isValid": false,
 		"attributes": {
-			"value": "<p>Testing deprecated quote block...</p>",
-			"citation": "...with a caption"
+			"citation": "",
+			"className": "blocks-quote-style-1"
 		},
 		"innerBlocks": []
 	}
