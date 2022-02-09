@@ -3,7 +3,7 @@
 		"name": "core/quote",
 		"isValid": true,
 		"attributes": {
-			"citation": "Maya Angelou",
+			"attribution": "Maya Angelou",
 			"className": "is-style-large"
 		},
 		"innerBlocks": [
