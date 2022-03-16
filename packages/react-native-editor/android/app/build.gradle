@@ -200,7 +200,7 @@ dependencies {
     implementation "com.github.wordpress-mobile:react-native-slider:$testVersion"
     implementation "com.github.wordpress-mobile:react-native-get-random-values:$testVersion"
     implementation "com.github.wordpress-mobile:react-native-masked-view:$testVersion"
-    implementation "com.github.wordpress-mobile:react-native-gesture-handler:$testVersion"
+    implementation "com.github.wordpress-mobile:react-native-gesture-handler:9969908f97"
     implementation 'com.github.wordpress-mobile:react-native-screens:16871ff657'
     implementation "com.github.wordpress-mobile:react-native-safe-area-context:$testVersion"
     implementation "com.github.wordpress-mobile:react-native-reanimated:$testVersion"
