@@ -307,6 +307,7 @@ export const getMethodName = (
  * Loads the kind entities into the store.
  *
  * @param {string} kind Kind
+ *
  * @return {(thunkArgs: object) => Promise<Array>} Entities
  */
 export const getOrLoadEntitiesConfig = ( kind ) => async ( {
