@@ -24,6 +24,8 @@ const EMPTY_ARRAY = [];
  */
 import { rootEntitiesConfig, additionalEntityConfigLoaders } from './entities';
 
+/** @typedef {import('@wordpress/blocks').WPBlock} WPBlock */
+
 const entityContexts = {
 	...rootEntitiesConfig.reduce( ( acc, loader ) => {
 		if ( ! acc[ loader.kind ] ) {

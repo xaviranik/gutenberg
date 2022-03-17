@@ -330,12 +330,15 @@ function entity( entityConfig ) {
 /**
  * Reducer keeping track of the registered entities.
  *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
+ * @param state  Current state.
+ * @param action Dispatched action.
  *
- * @return {Object} Updated state.
+ * @return Updated state.
  */
-export function entitiesConfig( state = rootEntitiesConfig, action ) {
+export function entitiesConfig(
+	state = rootEntitiesConfig as EntityConfig[],
+	action
+): EntityConfig[] {
 	switch ( action.type ) {
 		case 'ADD_ENTITIES':
 			return [ ...state, ...action.entities ];
@@ -345,14 +348,40 @@ export function entitiesConfig( state = rootEntitiesConfig, action ) {
 }
 
 /**
+ * Placeholder for an entity config record.
+ *
+ * TODO: Replace once we have an official type for this.
+ *
+ * @see #39481
+ */
+interface EntityConfig extends Record< string, any > {
+	baseURL?: string;
+	baseURLParams?: Record< string, string | number >;
+	getTitle?(): ( record: unknown ) => string;
+	key?: string;
+	kind: string;
+	label?: string;
+	name: string;
+	plural?: string;
+	rawAttributes?: string[];
+	title?: string;
+	transientEdits?: { blocks: boolean };
+}
+
+interface EntityState {
+	config: EntityConfig[];
+	records: Record< string, any >;
+	reducer< State >( state: State, action: Record< string, any > ): State;
+}
+
+/**
  * Reducer keeping track of the registered entities config and data.
  *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
- *
- * @return {Object} Updated state.
+ * @param state  Current state.
+ * @param action Dispatched action.
+ * @return       Updated state.
  */
-export const entities = ( state = {}, action ) => {
+export const entities = ( state = {} as EntityState, action ): EntityState => {
 	const newConfig = entitiesConfig( state.config, action );
 
 	// Generates a dynamic reducer for the entities.
@@ -397,18 +426,26 @@ export const entities = ( state = {}, action ) => {
 	};
 };
 
+interface UndoState extends Array< object > {
+	offset: number;
+	flattenedUndo?: object;
+}
+
+const UNDO_INITIAL_STATE: UndoState = Object.assign( [], { offset: 0 } );
+let lastEditAction;
+
 /**
  * Reducer keeping track of entity edit undo history.
  *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
+ * @param state  Current state.
+ * @param action Dispatched action.
  *
- * @return {Object} Updated state.
+ * @return Updated state.
  */
-const UNDO_INITIAL_STATE = [];
-UNDO_INITIAL_STATE.offset = 0;
-let lastEditAction;
-export function undo( state = UNDO_INITIAL_STATE, action ) {
+export function undo(
+	state = UNDO_INITIAL_STATE,
+	action: Record< string, any >
+): UndoState {
 	switch ( action.type ) {
 		case 'EDIT_ENTITY_RECORD':
 		case 'CREATE_UNDO_LEVEL':
