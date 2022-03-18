@@ -59,8 +59,76 @@ class WP_Webfonts {
 		}
 		add_action( $hook, array( $this, 'generate_and_enqueue_styles' ) );
 
+		add_action( 'wp_loaded', array( $this, 'collect_fonts_from_global_styles' ) );
+		add_filter( 'pre_render_block', array( $this, 'collect_fonts_from_block' ), 10, 2 );
+
+		// We are already enqueueing all registered fonts by default when loading the block editor.
+		// So we need to bail out of block and global styles webfont scanning.
+		add_action( 'admin_init', array( $this, 'remove_webfont_scanning_hooks' ) );
+
 		// Enqueue webfonts in the block editor.
 		add_action( 'admin_init', array( $this, 'generate_and_enqueue_editor_styles' ) );
+	}
+
+	public function collect_fonts_from_global_styles() {
+		$global_styles = gutenberg_get_global_styles();
+
+		if ( isset( $global_styles['blocks'] ) ) {
+			// Register used fonts from blocks.
+			foreach ( $global_styles['blocks'] as $setting ) {
+				$font_slug = $this->get_font_slug_from_setting( $setting );
+
+				if ( $font_slug ) {
+					$this->enqueue_font_family_by_slug( $font_slug );
+				}
+			}
+		}
+
+		if ( isset( $global_styles['elements'] ) ) {
+			// Register used fonts from elements.
+			foreach ( $global_styles['elements'] as $setting ) {
+				$this->get_font_slug_from_setting( $setting );
+			}
+		}
+
+		$has_global_typography_setting = isset( $global_styles['typography'] ) && isset( $global_styles['typography']['fontFamily'] );
+
+		if ( ! $has_global_typography_setting ) {
+			return;
+		}
+
+		$font_family_custom = $global_styles['typography']['fontFamily'];
+		$index_to_splice    = strrpos( $font_family_custom, '|' ) + 1;
+		$font_family_slug   = substr( $font_family_custom, $index_to_splice );
+
+		$this->enqueue_font_family_by_slug( $font_family_slug );
+	}
+
+	private function get_font_slug_from_setting( $setting ) {
+		if ( isset( $setting['typography'] ) && isset( $setting['typography']['fontFamily'] ) ) {
+			$font_family = $setting['typography']['fontFamily'];
+
+			// Full string: var(--wp--preset--font-family--slug).
+			// We do not care about the origin of the font, only its slug.
+			preg_match( '/font-family--(?P<slug>.+)\)$/', $font_family, $matches );
+
+			if ( isset( $matches['slug'] ) ) {
+				return $matches['slug'];
+			}
+		}
+	}
+
+	public function remove_webfont_scanning_hooks() {
+		remove_action( 'wp_loaded', array( $this, 'collect_fonts_from_global_styles' ) );
+		remove_filter( 'pre_render_block', array( $this, 'collect_fonts_from_block' ) );
+	}
+
+	public function collect_fonts_from_block( $content, $parsed_block ) {
+		if ( isset( $parsed_block['attrs']['fontFamily'] ) ) {
+			$this->enqueue_font_family_by_slug( $parsed_block['attrs']['fontFamily'] );
+		}
+
+		return $content;
 	}
 
 	/**
@@ -118,16 +186,22 @@ class WP_Webfonts {
 	}
 
 	public function enqueue_font( $font_family ) {
-		$slug = $this->get_font_slug( $font_family );
+		$slug   = $this->get_font_slug( $font_family );
+		$result = $this->enqueue_font_family_by_slug( $slug );
 
-		if ( isset( $this->enqueued_webfonts[ $slug ] ) ) {
-			_doing_it_wrong( __FUNCTION__, sprintf( __( 'The "%s" font family is already enqueued.' ), $slug ), '6.0.0' );
+		if ( is_wp_error( $result ) ) {
+			_doing_it_wrong( __FUNCTION__, $result->get_error_message(), '6.0.0' );
 			return false;
+		}
+	}
+
+	private function enqueue_font_family_by_slug( $slug ) {
+		if ( isset( $this->enqueued_webfonts[ $slug ] ) ) {
+			return new WP_Error( 'webfont_already_enqueued', sprintf( __( 'The "%s" font family is already enqueued.' ), $slug ) );
 		}
 
 		if ( ! isset( $this->registered_webfonts[ $slug ] ) ) {
-			_doing_it_wrong( __FUNCTION__, sprintf( __( 'The "%s" font family is not registered.' ), $slug ), '6.0.0' );
-			return false;
+			return new WP_Error( 'webfont_not_registered', sprintf( __( 'The "%s" font family is not registered.' ), $slug ) );
 		}
 
 		$this->enqueued_webfonts[ $slug ] = $this->registered_webfonts[ $slug ];
