@@ -41,7 +41,13 @@ export default function QuoteEdit( {
 		} ),
 		style,
 	} );
-	const innerBlocksProps = useInnerBlocksProps();
+	const innerBlocksProps = useInnerBlocksProps(
+		{},
+		{
+			template: [ [ 'core/paragraph', {} ] ],
+			templateInsertUpdatesSelection: true,
+		}
+	);
 	const isAncestorOfSelectedBlock = useSelect( ( select ) =>
 		select( blockEditorStore ).hasSelectedInnerBlock( clientId )
 	);
