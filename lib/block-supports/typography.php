@@ -259,7 +259,7 @@ function gutenberg_get_typography_font_size_value( $preset ) {
 
 	// Font sizes.
 	// $preset['size'] acts as the minimum size of the font.
-	$minimum_font_size     = gutenberg_get_typography_value_and_unit( $preset['size'] );
+	$minimum_font_size = gutenberg_get_typography_value_and_unit( $preset['size'] );
 
 	// If the minimum fontsize isn't successfully parsed,
 	// or there's no defined `maxSize` skip the font.
