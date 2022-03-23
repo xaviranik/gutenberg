@@ -111,6 +111,7 @@ export function initializeEditor(
 		fixedToolbar: false,
 		fullscreenMode: true,
 		hiddenBlockTypes: [],
+		isPublishSidebarEnabled: true,
 		preferredStyleVariations: {},
 		showBlockBreadcrumbs: true,
 		showIconLabels: false,
