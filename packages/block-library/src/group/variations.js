@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { row, stack } from '@wordpress/icons';
 
 const variations = [
 	{
@@ -22,6 +23,7 @@ const variations = [
 		scope: [ 'inserter', 'transform' ],
 		isActive: ( blockAttributes ) =>
 			blockAttributes.layout?.type === 'flex' && ( ! blockAttributes.layout?.orientation || blockAttributes.layout?.orientation === 'horizontal' ),
+		icon: row
 	},
 	{
 		name: 'group-stack',
@@ -31,6 +33,7 @@ const variations = [
 		scope: [ 'inserter', 'transform' ],
 		isActive: ( blockAttributes ) =>
 			blockAttributes.layout?.type === 'flex' && blockAttributes.layout?.orientation === 'vertical',
+		icon: stack,
 	},
 ];
 
